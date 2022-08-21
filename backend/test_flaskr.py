@@ -123,20 +123,19 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["message"], "Unprocessable Entity")
 
     def test_200_search_questions(self):
-        newSearch = {'searchTerm': 'a'}
+        newSearch = {'searchTerm': 'Peanut Butter'}
         res = self.client().post('/questions/search', json=newSearch)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertIsNotNone(data['questions'])
-        self.assertIsNotNone(data['total_questions'])
+        self.assertIsNotNone(data['total_questions'], 1)
 
     def test_404_search_question(self):
-        new_search = {
+        newSearch = {
             'searchTerm': 'Udacity',
         }
-        res = self.client().post('/questions/search', json=new_search)
+        res = self.client().post('/questions/search', json=newSearch)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
@@ -149,7 +148,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertTrue(len(data['questions']))
+        self.assertTrue(data['questions'])
         self.assertTrue(data['total_questions'])
         self.assertTrue(data['current_category'])
 
@@ -176,9 +175,9 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().post('/quizzes', json=quiz)
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
-        self.assertEqual(data["message"], "Unprocessable Entity")
+        self.assertEqual(data["message"], "Not Found")
 
 
 # Make the tests conveniently executable

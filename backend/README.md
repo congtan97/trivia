@@ -34,6 +34,9 @@ Populate the database using the `trivia.psql` file provided. From the `backend` 
 
 ```bash
 psql trivia < trivia.psql
+if not success, run this
+psql -U username -d myDataBase -a -f myInsertFile
+with your username, database, filename
 ```
 
 ### Run the Server
@@ -43,6 +46,7 @@ From within the `./src` directory first ensure you are working using your create
 To run the server, execute:
 
 ```bash
+export FLASK_APP=flaskr
 python -m flask run --reload
 ```
 

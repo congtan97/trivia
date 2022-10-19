@@ -153,20 +153,21 @@ def create_app(test_config=None):
     @app.route('/questions/search', methods=['POST'])
     def search_questions():
         body = request.get_json()
-        searchTerm = body.get('searchTerm')
+        search_term = body.get('searchTerm')
+        selection = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
+        search_questions = paginate_questions(request, selection)
+        # question = Question.query.all()
 
-        searchResults = Question.query.filter(
-                Question.question.ilike(f'%{searchTerm}%')).all()
-
-        if searchResults:
-            currentQuestions = paginate_questions(request, searchResults)
-            return jsonify({
-                'success': True,
-                'questions': currentQuestions,
-                'total_questions': len(searchResults)
-            })
-        else:
+        if search_term == None:
             abort(404)
+
+        return jsonify({
+                "success": True,
+                "questions": list(search_questions),
+                "total_questions": len(selection),
+            })
+
+
 
     """
     @TODO:
@@ -176,20 +177,24 @@ def create_app(test_config=None):
     categories in the left column will cause only questions of that
     category to be shown.
     """
-    @app.route('/categories/<int:category_id>/questions', methods=['GET'])
-    def get_questions_by_category(category_id):
-        category = Category.query.filter_by(id=category_id).one_or_none()
+    @app.route('/categories/<int:category_id>/questions')
+    def category_questions(category_id):
+        try:
+            selection = Question.query.filter(category_id == Question.category).all()
+    
+            current_questions = paginate_questions(request, selection)
+            categories = Category.query.all()
 
-        if category:
-            questions = Question.query.filter_by(category=str(category_id)).all()
-            currentQuestions = paginate_questions(request, questions)
+            if category_id > len(categories):
+                abort(404)
+
             return jsonify({
-                'success': True,
-                'questions': currentQuestions,
-                'total_questions': len(questions),
-                'current_category': category.type
-            })
-        else:
+                    "success": True,
+                    "questions": list(current_questions),
+                    "total_questions": len(selection),
+                    "current_category": [cat.type for cat in categories if cat.id == category_id ]
+                })
+        except:
             abort(404)
 
     """

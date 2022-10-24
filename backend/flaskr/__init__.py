@@ -91,15 +91,18 @@ def create_app(test_config=None):
     def delete_question(id):
         try:
             question = Question.query.get(id)
-            
+
+            if question is None:
+                abort(404)
+
             question.delete()
+
             return jsonify({
                 'success': True,
                 'deleted': id
             })
         except:
-            abort(404)
-
+            abort(422)
     """
     @TODO:
     Create an endpoint to POST a new question,
@@ -113,28 +116,32 @@ def create_app(test_config=None):
     @app.route("/questions", methods=['POST'])
     def add_question():
         body = request.get_json()
+        new_question = body.get('question')
+        new_answer = body.get('answer')
+        new_category = body.get('category')
+        new_difficulty = body.get('difficulty')
 
-        if not ('question' in body and 'answer' in body):
+        if (body, new_question, new_answer, new_category, new_difficulty) == None:
             abort(422)
 
-        newQuestion = body.get('question')
-        newAnswer = body.get('answer')
-        newDifficulty = body.get('difficulty', None)
-        newCategory = body.get('category', None)
-
         try:
-            question = Question(question=newQuestion, answer=newAnswer,
-                                difficulty=newDifficulty, category=newCategory)
+            question = Question(
+                question=new_question,
+                answer=new_answer,
+                category=new_category,
+                difficulty=new_difficulty
+                )
+
             question.insert()
 
-            selection = Question.query.order_by(Question.id).all()
-            currentQuestions = paginate_questions(request, selection)
+            tot_questions = Question.query.all()
+            current_questions = paginate_questions(request, tot_questions)
 
             return jsonify({
                 'success': True,
                 'created': question.id,
-                'questions': currentQuestions,
-                'total_questions': len(selection)
+                'questions': current_questions,
+                'total_questions': len(tot_questions)
             })
 
         except:

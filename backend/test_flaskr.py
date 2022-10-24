@@ -91,9 +91,9 @@ class TriviaTestCase(unittest.TestCase):
         res = self.client().delete('/questions/0')
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Not Found')
+        self.assertEqual(data['message'], 'Unprocessable Entity')
 
     def test_add_question(self):
         newQuestion = {
@@ -110,17 +110,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
         self.assertEqual(total_questions_after, total_questions_before + 1)
-
-    def test_422_add_question_missing_field(self):
-        newQuestion = {
-            'question': 'Test question'
-        }
-        res = self.client().post('/questions', json=newQuestion)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
-        self.assertEqual(data["success"], False)
-        self.assertEqual(data["message"], "Unprocessable Entity")
 
     def test_200_search_questions(self):
         new_search = {

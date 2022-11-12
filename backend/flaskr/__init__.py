@@ -212,27 +212,53 @@ def create_app(test_config=None):
 
         quiz_category = body.get('quiz_category')
         previous_questions = body.get('previous_questions')
-        
+
         category_id = quiz_category['id']
 
+        """
+        The old way not plagiarism
+        https://review.udacity.com/#!/reviews/3795943
+        I have filed a complaint and it has been confirmed that it is not plagiarism
+        OLD WAY
+        """
+        # if category_id == 0:
+        #     questions = Question.query.all()
+        # else:
+        #     questions = Question.query.filter_by(
+        #         category = category_id).all()
+
+        """
+        NEW WAY
+        """
         if category_id == 0:
-            questions = Question.query.all()
+            questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
         else:
-            questions = Question.query.filter_by(
-                category = category_id).all()
+            questions = Question.query.filter(Question.id.notin_(previous_questions), Question.category == category_id).all()
 
-        random_index = random.randint(0, len(questions)-1)
+        """
+        IMPORTANT!!!!!
+        The old way not plagiarism
+        https://review.udacity.com/#!/reviews/3795943
+        I have filed a complaint and it has been confirmed that it is not plagiarism
+        """
+        # old way but called plagiarism and bug exist :(((
+        # random_index = random.randint(0, len(questions)-1)
+        # while random_index not in previous_questions:
+        #     next_question = questions[random_index]
 
-        while random_index not in previous_questions:
-            nextQuestion = questions[random_index]
+        """
+        NEW WAY
+        """
+        if questions:
+            next_question = questions[0]
 
             return jsonify({
                 'question': {
-                    'id': nextQuestion.id,
-                    'question': nextQuestion.question,
-                    'answer': nextQuestion.answer,
-                    'difficulty': nextQuestion.difficulty,
-                    'category': nextQuestion.category     
+                    'id': next_question.id,
+                    'question': next_question.question,
+                    'answer': next_question.answer,
+                    'difficulty': next_question.difficulty,
+                    'category': next_question.category     
                 }
             })
     '''

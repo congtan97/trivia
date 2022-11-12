@@ -1,6 +1,4 @@
-import os
 from flask import Flask, request, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
 
@@ -216,9 +214,6 @@ def create_app(test_config=None):
         category_id = quiz_category['id']
 
         """
-        The old way not plagiarism
-        https://review.udacity.com/#!/reviews/3795943
-        I have filed a complaint and it has been confirmed that it is not plagiarism
         OLD WAY
         """
         # if category_id == 0:
@@ -227,6 +222,11 @@ def create_app(test_config=None):
         #     questions = Question.query.filter_by(
         #         category = category_id).all()
 
+        # random_index = random.randint(0, len(questions)-1)
+        # next_question = questions[random_index]
+        # while next_question.id not in previous_questions:
+            
+
         """
         NEW WAY
         """
@@ -234,21 +234,7 @@ def create_app(test_config=None):
             questions = Question.query.filter(Question.id.notin_(previous_questions)).all()
         else:
             questions = Question.query.filter(Question.id.notin_(previous_questions), Question.category == category_id).all()
-
-        """
-        IMPORTANT!!!!!
-        The old way not plagiarism
-        https://review.udacity.com/#!/reviews/3795943
-        I have filed a complaint and it has been confirmed that it is not plagiarism
-        """
-        # old way but called plagiarism and bug exist :(((
-        # random_index = random.randint(0, len(questions)-1)
-        # while random_index not in previous_questions:
-        #     next_question = questions[random_index]
-
-        """
-        NEW WAY
-        """
+            
         if questions:
             next_question = questions[0]
 
